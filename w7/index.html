@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Vốn của bạn đang bị khóa bao nhiêu ngày?</title>
+<style>
+  :root{
+    --bg:#10192B; --bg2:#16223A; --card:#1B2A45;
+    --gold:#C9A227; --teal:#3E9C82; --amber:#D9A441; --brick:#C1573A;
+    --text:#EDEFF3; --muted:#9AA6BD; --input-bg:#0D1526; --border:#2A3A5C;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    line-height:1.55;
+  }
+  .wrap{max-width:640px; margin:0 auto; padding:32px 20px 80px;}
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.08em;
+    color:var(--gold); text-transform:uppercase; margin-bottom:10px;
+  }
+  h1{
+    font-family:Georgia,"Noto Serif",serif; font-size:28px; line-height:1.3;
+    margin:0 0 12px;
+  }
+  .sub{color:var(--muted); font-size:15px; margin-bottom:28px;}
+  label{display:block; font-size:13px; color:var(--muted); margin:16px 0 6px;}
+  select, input[type=text]{
+    width:100%; padding:12px 14px; border-radius:8px;
+    border:1px solid var(--border); background:var(--input-bg); color:var(--text);
+    font-size:15px;
+  }
+  select:focus, input:focus{outline:none; border-color:var(--gold);}
+  .note{font-size:12px; color:var(--muted); margin-top:4px;}
+  button{
+    width:100%; margin-top:24px; padding:14px; border:none; border-radius:8px;
+    background:var(--gold); color:#1a1406; font-weight:600; font-size:15px;
+    cursor:pointer;
+  }
+  button:hover{opacity:.92;}
+  button:disabled{opacity:.5; cursor:not-allowed;}
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:12px;
+    padding:24px; margin-top:24px;
+  }
+  .hidden{display:none;}
+  .result-number{
+    font-family:Georgia,"Noto Serif",serif; font-size:44px; color:var(--gold);
+    margin:8px 0 4px;
+  }
+  .result-label{color:var(--muted); font-size:14px;}
+  .breakdown{display:flex; gap:16px; margin-top:20px; flex-wrap:wrap;}
+  .breakdown div{flex:1; min-width:90px; text-align:center;}
+  .breakdown .val{font-size:20px; font-weight:600;}
+  .breakdown .lbl{font-size:12px; color:var(--muted); margin-top:2px;}
+  .badge{
+    display:inline-block; padding:4px 10px; border-radius:6px; font-size:12px;
+    font-weight:600; margin-top:14px;
+  }
+  .badge.good{background:rgba(62,156,130,.18); color:var(--teal);}
+  .badge.ok{background:rgba(62,156,130,.10); color:var(--teal);}
+  .badge.warn{background:rgba(217,164,65,.15); color:var(--amber);}
+  .badge.high{background:rgba(193,87,58,.15); color:var(--brick);}
+  .assessment{font-size:14px; margin-top:14px; padding-top:14px; border-top:1px solid var(--border);}
+  .threshold-note{font-size:12px; color:var(--muted); margin-top:10px;}
+  .err{color:var(--brick); font-size:13px; margin-top:10px; display:none;}
+  .footer-note{
+    font-size:12px; color:var(--muted); margin-top:32px; text-align:center;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">Công cụ CFO nhanh · 01</div>
+  <h1>Vốn của bạn đang bị <em>khóa</em> bao nhiêu ngày?</h1>
+  <p class="sub">Chu kỳ Chuyển đổi Tiền mặt (Cash Conversion Cycle) đo số ngày tiền của bạn
+  nằm kẹt giữa lúc chi ra mua hàng và lúc thu về từ khách. Nhập 5 số liệu gần nhất
+  — có ngay con số và mức cảnh báo theo ngành.</p>
+
+  <div id="formSection">
+    <label for="industry">Ngành nghề kinh doanh chính</label>
+    <select id="industry">
+      <option value="retail">Bán lẻ tổng hợp</option>
+      <option value="distribution">Phân phối / Bán buôn</option>
+      <option value="fmcg">Sản xuất hàng tiêu dùng (FMCG)</option>
+      <option value="industrial">Sản xuất công nghiệp / Cơ khí</option>
+      <option value="construction">Xây dựng / Thầu công trình</option>
+      <option value="fnb">F&B / Nhà hàng</option>
+      <option value="b2b">Dịch vụ B2B / Tư vấn</option>
+      <option value="ecommerce">Thương mại điện tử / D2C</option>
+    </select>
+
+    <label for="cogs">Giá vốn hàng bán (COGS) — 12 tháng gần nhất</label>
+    <input type="text" inputmode="numeric" class="amount-input" id="cogs" placeholder="VD: 12,000,000,000">
+    <div class="note">Đơn vị: VNĐ, không cần gõ dấu phẩy — tự hiện khi rời ô</div>
+
+    <label for="revenue">Doanh thu thuần — 12 tháng gần nhất</label>
+    <input type="text" inputmode="numeric" class="amount-input" id="revenue" placeholder="VD: 20,000,000,000">
+
+    <label for="inventory">Tồn kho bình quân</label>
+    <input type="text" inputmode="numeric" class="amount-input" id="inventory" placeholder="VD: 1,500,000,000">
+    <div class="note">Bình quân = (đầu kỳ + cuối kỳ) / 2</div>
+
+    <label for="ar">Phải thu bình quân (AR)</label>
+    <input type="text" inputmode="numeric" class="amount-input" id="ar" placeholder="VD: 2,000,000,000">
+
+    <label for="ap">Phải trả bình quân (AP)</label>
+    <input type="text" inputmode="numeric" class="amount-input" id="ap" placeholder="VD: 1,200,000,000">
+
+    <div class="err" id="errMsg">Điền đủ 5 ô, số phải lớn hơn 0.</div>
+
+    <button id="calcBtn">Tính chu kỳ chuyển đổi tiền mặt</button>
+  </div>
+
+  <div class="card hidden" id="gateSection">
+    <p style="margin-top:0;">Nhập email hoặc Zalo để nhận kết quả — và nhận thêm
+    1 công cụ CFO mới mỗi tuần.</p>
+    <input type="text" id="contact" placeholder="Email hoặc số Zalo">
+    <button id="revealBtn" style="margin-top:14px;">Xem kết quả</button>
+  </div>
+
+  <div class="card hidden" id="resultSection">
+    <div class="result-label">Cash Conversion Cycle</div>
+    <div class="result-number"><span id="cccVal">—</span> ngày</div>
+    <div id="badge"></div>
+    <div class="breakdown">
+      <div><div class="val" id="dioVal">—</div><div class="lbl">DIO</div></div>
+      <div><div class="val" id="dsoVal">—</div><div class="lbl">DSO</div></div>
+      <div><div class="val" id="dpoVal">—</div><div class="lbl">DPO</div></div>
+    </div>
+    <div class="assessment" id="assessmentText"></div>
+    <p class="threshold-note">Con số này cho biết vốn bị khóa bao lâu — chưa cho biết khóa
+    <em>ở đâu</em> và cần làm gì trước. Ngưỡng cảnh báo: Damodaran/NYU Stern, điều chỉnh cho
+    bối cảnh SME Việt Nam.</p>
+  </div>
+
+  <p class="footer-note">Công cụ tham khảo nhanh — không thay thế báo cáo phân tích tài chính đầy đủ.</p>
+</div>
+
+<script>
+// ---- Ngưỡng cảnh báo theo ngành (ngày) — lấy đúng từ CFO_Toolkit_FinPulse.xlsx, tab 1_CCC_WorkingCapital ----
+// Tot(<) / On(<) / CanChuY(<) / ApLucCao(>=)
+const THRESHOLDS = {
+  retail:       {tot:20, on:40, canChuY:70,  nganh:'Bán lẻ tổng hợp'},
+  distribution: {tot:30, on:60, canChuY:90,  nganh:'Phân phối / Bán buôn'},
+  fmcg:         {tot:40, on:70, canChuY:100, nganh:'Sản xuất hàng tiêu dùng (FMCG)'},
+  industrial:   {tot:60, on:100,canChuY:140, nganh:'Sản xuất công nghiệp / Cơ khí'},
+  construction: {tot:60, on:100,canChuY:150, nganh:'Xây dựng / Thầu công trình'},
+  fnb:          {tot:10, on:20, canChuY:35,  nganh:'F&B / Nhà hàng'},
+  b2b:          {tot:20, on:45, canChuY:75,  nganh:'Dịch vụ B2B / Tư vấn'},
+  ecommerce:    {tot:45, on:90, canChuY:130, nganh:'Thương mại điện tử / D2C'}
+};
+
+// ---- Format số có dấu phẩy khi blur, bỏ dấu phẩy khi focus ----
+document.querySelectorAll('.amount-input').forEach(inp=>{
+  inp.addEventListener('blur', ()=>{
+    const raw = numVal(inp.value);
+    if(raw>0) inp.value = raw.toLocaleString('en-US');
+  });
+  inp.addEventListener('focus', ()=>{
+    inp.value = numVal(inp.value) || '';
+  });
+});
+
+function numVal(str){
+  if(!str) return 0;
+  const n = parseFloat(String(str).replace(/,/g,''));
+  return isNaN(n) ? 0 : n;
+}
+
+let lastResult = null;
+
+document.getElementById('calcBtn').addEventListener('click', ()=>{
+  const cogs = numVal(document.getElementById('cogs').value);
+  const revenue = numVal(document.getElementById('revenue').value);
+  const inventory = numVal(document.getElementById('inventory').value);
+  const ar = numVal(document.getElementById('ar').value);
+  const ap = numVal(document.getElementById('ap').value);
+  const industry = document.getElementById('industry').value;
+
+  const errEl = document.getElementById('errMsg');
+  if(cogs<=0 || revenue<=0 || inventory<=0 || ar<=0 || ap<=0){
+    errEl.style.display='block';
+    return;
+  }
+  errEl.style.display='none';
+
+  const dio = (inventory/cogs)*365;
+  const dso = (ar/revenue)*365;
+  const dpo = (ap/cogs)*365;
+  const ccc = dio + dso - dpo;
+
+  lastResult = {
+    industry, cogs, revenue, inventory, ar, ap,
+    dio: dio.toFixed(1), dso: dso.toFixed(1), dpo: dpo.toFixed(1), ccc: ccc.toFixed(1)
+  };
+
+  document.getElementById('formSection').classList.add('hidden');
+  document.getElementById('gateSection').classList.remove('hidden');
+});
+
+document.getElementById('revealBtn').addEventListener('click', ()=>{
+  const contact = document.getElementById('contact').value.trim();
+  if(!contact){
+    alert('Vui lòng nhập email hoặc Zalo để xem kết quả.');
+    return;
+  }
+  if(!lastResult) return;
+
+  // Gửi lead + kết quả về webhook chung — field "tool" đánh dấu riêng cho bài LinkedIn Week 7
+  // Format payload khớp với business-value-estimator.html (Content-Type json, có timestamp, result stringified)
+  fetch('https://script.google.com/macros/s/AKfycbxaPE5kWR3dNJIi2Q6dbddXR6Vf9fl6LBO6Vw4J5d-YBniifqNVUPhWIkf1ClYEWYK3/exec', {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      tool: 'linkedin_w7_ccc',
+      timestamp: new Date().toISOString(),
+      contact: contact,
+      result: JSON.stringify(lastResult)
+    })
+  }).catch(()=>{ /* no-cors: không đọc được response, bỏ qua lỗi network hiển thị */ });
+
+  // Hiện kết quả
+  const t = THRESHOLDS[lastResult.industry];
+  const ccc = parseFloat(lastResult.ccc);
+  document.getElementById('cccVal').textContent = lastResult.ccc;
+  document.getElementById('dioVal').textContent = lastResult.dio;
+  document.getElementById('dsoVal').textContent = lastResult.dso;
+  document.getElementById('dpoVal').textContent = lastResult.dpo;
+
+  const badgeEl = document.getElementById('badge');
+  const assessEl = document.getElementById('assessmentText');
+  if(ccc < t.tot){
+    badgeEl.innerHTML = '<span class="badge good">✓ Tốt</span>';
+    assessEl.textContent = 'Tốt — vốn quay vòng nhanh hơn phần lớn doanh nghiệp cùng ngành (' + t.nganh + ').';
+  } else if(ccc < t.on){
+    badgeEl.innerHTML = '<span class="badge ok">Ổn</span>';
+    assessEl.textContent = 'Ổn — ở mức bình thường của ngành, vẫn còn dư địa để rút ngắn trước khi thành áp lực thật sự.';
+  } else if(ccc < t.canChuY){
+    badgeEl.innerHTML = '<span class="badge warn">⚠ Cần chú ý</span>';
+    assessEl.textContent = 'Cần chú ý — cao hơn mức tham khảo ngành; nếu doanh thu tăng tiếp, áp lực vốn lưu động sẽ tăng nhanh hơn lợi nhuận.';
+  } else {
+    badgeEl.innerHTML = '<span class="badge high">🔴 Áp lực cao</span>';
+    assessEl.textContent = 'Áp lực cao — vượt xa mức tham khảo ngành; doanh nghiệp đang tự tài trợ cho khách hàng và nhà cung cấp bằng vốn của chính mình.';
+  }
+
+  document.getElementById('gateSection').classList.add('hidden');
+  document.getElementById('resultSection').classList.remove('hidden');
+});
+</script>
+</body>
+</html>
